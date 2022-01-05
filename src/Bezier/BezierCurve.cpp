@@ -1,13 +1,8 @@
 #include "BezierCurve.h"
 
-#include "sfLine.h"
-
 sf::Vector2f BezierCurve::GetValue(float t) const
 {
-	std::vector<sf::Vector2f> curPoints(_points.size());
-	std::transform(_points.begin(), _points.end(),
-		curPoints.begin(), [](auto p) {return p.Position; });
-	//curPoints.push_back(_points[0].Position);
+	std::vector<sf::Vector2f> curPoints = _points;
 	while (curPoints.size() > 1)
 	{
 		std::vector<sf::Vector2f> nextPoints;
@@ -19,33 +14,7 @@ sf::Vector2f BezierCurve::GetValue(float t) const
 	return curPoints[0];
 }
 
-BezierCurve::BezierCurve(const std::vector<MovingPoint>& points): _points(points)
+BezierCurve::BezierCurve(std::vector<sf::Vector2f> points) : _points(std::move(points))
 {
 }
 
-void BezierCurve::AddPoint(const MovingPoint& point, int index)
-{
-	_points.emplace(_points.begin() + index, point);
-}
-
-void BezierCurve::Update(float dt)
-{
-	for (auto&& point : _points)
-		point.Update(dt);
-}
-
-void BezierCurve::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-	auto prevPoint = GetValue(0);
-	for (int i = 1; i <= _drawPointCount; i++)
-	{
-		float t = static_cast<float>(i) / _drawPointCount;
-		auto curPoint = GetValue(t);
-		sfLine line(prevPoint, curPoint, Color, 5);
-		target.draw(line);
-		prevPoint = curPoint;
-	}
-	if (ShowPoints)
-		for (auto&& p : _points)
-			target.draw(p);
-}

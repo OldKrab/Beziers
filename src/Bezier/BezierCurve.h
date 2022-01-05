@@ -2,24 +2,18 @@
 #include <SFML/Graphics.hpp>
 #include "MovingPoint.h"
 
-class BezierCurve:public sf::Drawable
+class BezierCurve
 {
 public:
+	explicit BezierCurve(std::vector<sf::Vector2f> points);
+
 	sf::Vector2f GetValue(float t) const;
 
-	explicit BezierCurve(const std::vector<MovingPoint>& points);
+	const std::vector<sf::Vector2f>& GetPoints() const { return  _points; }
 
-	void AddPoint(const MovingPoint& point, int index);
-
-	void Update(float dt);
-
-	bool ShowPoints = false;
-	sf::Color Color = sf::Color::Cyan;
 protected:
-	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+	std::vector<sf::Vector2f> _points;
 
-	std::vector<MovingPoint> _points;
-	int _drawPointCount = 300;
 };
 
 

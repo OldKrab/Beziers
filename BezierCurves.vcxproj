@@ -20,13 +20,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Bezier\BezierCurve.cpp" />
+    <ClCompile Include="src\Bezier\MovingBezierSpline.cpp" />
     <ClCompile Include="src\Bezier\MovingPoint.cpp" />
+    <ClCompile Include="src\HelperFunctions.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\sfLine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Bezier\BezierCurve.h" />
+    <ClInclude Include="src\Bezier\MovingBezierSpline.h" />
     <ClInclude Include="src\Bezier\MovingPoint.h" />
+    <ClInclude Include="src\HelperFunctions.h" />
     <ClInclude Include="src\sfLine.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -128,6 +132,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>SFML-2.5.1-64\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,6 +150,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>SFML-2.5.1-64\include;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
