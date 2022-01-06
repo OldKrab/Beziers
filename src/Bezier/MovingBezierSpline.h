@@ -6,7 +6,6 @@
 class MovingBezierSpline :public sf::Drawable
 {
 public:
-
 	void Update(float dt);
 
 	void AddBezier(sf::Vector2f point, sf::Vector2f controlPoint);
@@ -25,6 +24,7 @@ protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 private:
+	float _length = 1000, _curLength = 0;
 	sf::Color _color = sf::Color::White;
 	float _speedProgress = 0.8f;
 	float _speed = 0;

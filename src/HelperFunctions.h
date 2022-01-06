@@ -5,5 +5,6 @@
 namespace HelperFunctions
 {
 	sf::Vector2f GetRandomPoint(sf::IntRect range);
+	float GetLength(const sf::Vector2f& v);
 }
 
