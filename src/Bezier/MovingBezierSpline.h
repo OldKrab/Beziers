@@ -24,10 +24,8 @@ protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 private:
-	float _length = 1000, _curLength = 0;
 	sf::Color _color = sf::Color::White;
-	float _speedProgress = 0.8f;
-	float _speed = 0;
+	float _speedProgress = 0.8f, _decaySpeed = 155;
 	sf::Vector2f _curPosition;
 	float _curProgress = 1.f;
 	std::unique_ptr<BezierCurve> _curCurve;

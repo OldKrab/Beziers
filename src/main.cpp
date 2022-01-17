@@ -1,36 +1,45 @@
-﻿#include <iostream>
-#include <list>
-#include <SFML/Graphics.hpp>
+﻿#include <SFML/Graphics.hpp>
 
 #include "Bezier/MovingBezierSpline.h"
 #include "HelperFunctions.h"
+
+sf::RenderWindow window;
+int splinesCount = 1;
+std::vector<MovingBezierSpline> splines;
+bool isMousePressed = false, isFirstGenerate = true;
+float generateTimeDelta = 0.01f, timeSum = 0.f, secondGenerateTime = 1;
+sf::Vector2i mousePos;
+
+void Generate()
+{
+	auto&& spline = splines.emplace_back();
+	auto dest = window.mapPixelToCoords(mousePos);
+	spline.AddBezier(dest, dest);
+	spline.SetColor(sf::Color(rand() % 200 + 55,rand() % 200 + 55, rand() % 200 + 55));
+	spline.SetSpeed((float)(rand() % 300) / 1000 + 0.4f);
+}
 
 int main()
 {
 	srand(time(0));
 
-	//sf::RenderWindow window(sf::VideoMode(1000, 600), "SFML Window");
-	sf::RenderWindow window(sf::VideoMode::getFullscreenModes()[0], "SFML Window", sf::Style::Fullscreen);
+	//window.create(sf::VideoMode(1000, 600), "SFML Window");
+	window.create(sf::VideoMode::getFullscreenModes()[0], "SFML Window", sf::Style::Fullscreen);
 	sf::View view(sf::FloatRect({ 0,0 }, { 1520,850 }));
 	window.setView(view);
 
-	int curvesCount = 1;
-	std::vector<MovingBezierSpline> splines(curvesCount);
-	for (int i = 0; i < curvesCount; i++) {
-		splines[i].SetColor(sf::Color(rand() % 255, rand() % 255, rand() % 255));
-		splines[i].SetSpeed((float)(rand() % 200) / 1000 + 0.4f);
+	for (int i = 0; i < splinesCount; i++) {
+		Generate();
 	}
 
 	sf::Clock clock;
-	sf::Vector2i mousePos;
-	bool mousePressed = false;
-	float timeToGenerate = 0.01f, timeSum = 0.f;
+
 	while (window.isOpen())
 	{
 		sf::Event event{};
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed)
+			if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
 				window.close();
 			if (event.type == sf::Event::MouseMoved)
 				mousePos = { event.mouseMove.x, event.mouseMove.y };
@@ -41,24 +50,39 @@ int main()
 				if (scrollDelta < 0 || view.getSize().x < 30000 && view.getSize().y < 30000)
 					view.setSize(view.getSize() * (1 + scrollDelta * 0.1f));
 			}
+			if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R)
+			{
+				splines.erase(splines.begin() + 1, splines.end());
+				splinesCount = 1;
+			}
 			if (event.type == sf::Event::MouseButtonPressed)
 			{
-				mousePressed = true;
+				isMousePressed = true;
+				isFirstGenerate = true;
+				timeSum = 0;
+				Generate();
 			}
-			if (event.type == sf::Event::MouseButtonReleased)
-			{
-				mousePressed = false;
-			}
+			if(event.type == sf::Event::MouseButtonReleased)
+				isMousePressed = false;
 		}
 
-		if (mousePressed && timeSum > timeToGenerate)
+		if (isMousePressed)
 		{
-			timeSum = 0;
-			splines.emplace_back();
-			auto p = window.mapPixelToCoords(mousePos);
-			splines.back().AddBezier(p, p );
-			splines.back().SetColor(sf::Color(rand() % 255, rand() % 255, rand() % 255));
-			splines.back().SetSpeed((float)(rand() % 200) / 1000 + 0.4f);
+			bool isGenerate = false;
+			if (isFirstGenerate && timeSum > secondGenerateTime)
+			{
+				isFirstGenerate = false;
+				timeSum = 0;
+				isGenerate = true;
+			}
+			else if (!isFirstGenerate && timeSum > generateTimeDelta)
+			{
+				timeSum = 0;
+				isGenerate = true;
+			}
+			if (isGenerate) {
+				Generate();
+			}
 		}
 
 
@@ -77,14 +101,14 @@ int main()
 				sf::Vector2i lt(-20, -20), rb(20, 20);
 				sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
 				auto delta = (int)HelperFunctions::GetLength(worldPos - splines[i].GetCurrentPosition());
-				delta = std::max(delta, 500);
+				delta = std::max(delta, 50);
 				auto pos = worldPos;
 
 				sf::Vector2f p1 = pos, p2 = pos;
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
 				{
-					p1 +=  HelperFunctions::GetRandomPoint({ lt, rb-lt });
-					p2 += HelperFunctions::GetRandomPoint({ lt, rb-lt });
+					p1 += HelperFunctions::GetRandomPoint({ lt, rb - lt });
+					p2 += HelperFunctions::GetRandomPoint({ lt, rb - lt });
 				}
 				else {
 					p1 += HelperFunctions::GetRandomPoint({ {-delta / 2, -delta / 2},{delta,  delta} });
@@ -94,12 +118,19 @@ int main()
 			}
 			sum += splines[i].GetCurrentPosition();
 		}
-		view.setCenter(sum / (float)splines.size());
+
+		auto prevCenter = view.getCenter();
+		auto curCenter = sum / (float)splines.size();
+		auto centerDelta = curCenter - prevCenter;
+		auto dist = HelperFunctions::GetLength(centerDelta);
+		auto curDist = dist * dt * 10;
+		curCenter = prevCenter + curDist / dist * centerDelta;
+		view.setCenter(curCenter);
 		window.setView(view);
 
 		window.clear();
-		for (int i = 0; i < splines.size(); i++)
-			window.draw(splines[i]);
+		for (const auto& spline : splines)
+			window.draw(spline);
 
 		window.display();
 	}

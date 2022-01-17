@@ -14,32 +14,22 @@ void MovingBezierSpline::Update(float dt)
 	if (IsEnded())
 		return;
 
-	while (_curLength > _length && _drawVertexes.size() > 2){
-		auto len = HelperFunctions::GetLength(_drawVertexes[1].position - _drawVertexes[0].position);
-		_curLength -= len;
-		_drawVertexes.erase(_drawVertexes.begin());
-	}
-
-	auto pos = _curCurve->GetValue(_curProgress);
-	auto dist = HelperFunctions::GetLength(pos - _curPosition);
-	_speed = dist / dt;
-	_curPosition = pos;
-	//std::cout << dist << ' ' << _curLength << std::endl;
-	auto c = _color;
-	c.a = std::clamp(int(_speed), 100, 255);
-	_drawVertexes.push_back({ _curPosition ,c });
+	_curPosition =  _curCurve->GetValue(_curProgress);
+	_drawVertexes.push_back({ _curPosition ,_color });
 
 	int cnt = _drawVertexes.size();
-	_curLength = 0;
-	for(int i = 0; i < cnt; i++)
-	{
-		if(i > 0)
+
+	static float dtSum = 0;
+	dtSum += dt;
+	if (dtSum*_decaySpeed > 1) {
+		for (int i = 0; i < cnt; i++)
 		{
-			_curLength += HelperFunctions::GetLength(_drawVertexes[i].position - _drawVertexes[i-1].position);
+			_drawVertexes[i].color.a = std::max(0, _drawVertexes[i].color.a - (sf::Uint8)(dtSum*_decaySpeed));
 		}
-		int a = std::min(255, i * 255 / cnt + 80);
-		_drawVertexes[i].color.a = a;
+		dtSum =0;
 	}
+	_drawVertexes.erase(std::remove_if(_drawVertexes.begin(), _drawVertexes.end(),
+		[](sf::Vertex v) {return v.color.a == 0; }), _drawVertexes.end());
 }
 
 void MovingBezierSpline::AddBezier(sf::Vector2f point, sf::Vector2f controlPoint)
@@ -47,6 +37,7 @@ void MovingBezierSpline::AddBezier(sf::Vector2f point, sf::Vector2f controlPoint
 	if (_curCurve == nullptr)
 	{
 		_curCurve = std::make_unique<BezierCurve>(std::vector<sf::Vector2f>{ point, point, point, point });
+		_curPosition = point;
 		return;
 	}
 	const auto& prevPoints = _curCurve->GetPoints();
@@ -70,7 +61,7 @@ void MovingBezierSpline::draw(sf::RenderTarget& target, sf::RenderStates states)
 	float r = 0.0009f * target.getView().getSize().x;
 	sf::CircleShape circle(r);
 	circle.setPosition(_curPosition);
-	circle.setOrigin(r, r );
+	circle.setOrigin(r, r);
 	circle.setFillColor(_color);
 	target.draw(circle);
 	/*for (auto&& p : points)
