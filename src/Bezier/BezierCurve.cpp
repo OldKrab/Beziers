@@ -1,20 +1,26 @@
 #include "BezierCurve.h"
+#include "HelperFunctions.h"
+
 
 sf::Vector2f BezierCurve::GetValue(float t) const
 {
-	std::vector<sf::Vector2f> curPoints = _points;
-	while (curPoints.size() > 1)
+	sf::Vector2f p(0, 0);
+	int n =Points.size() - 1;
+	for (int i = 0; i <= n; i++)
 	{
-		std::vector<sf::Vector2f> nextPoints;
-		nextPoints.reserve(curPoints.size() - 1);
-		for (size_t i = 0; i < curPoints.size() - 1; i++)
-			nextPoints.push_back({ curPoints[i] + (curPoints[i + 1] - curPoints[i]) * t });
-		curPoints = std::move(nextPoints);
+		float k = (float)HelperFunctions::CalcFactorial(n) /
+			(HelperFunctions::CalcFactorial(i) * HelperFunctions::CalcFactorial(n - i));
+		for (int _ = 0; _ < i; _++)
+			k *= t;
+		for (int _ = 0; _ < n - i; _++)
+			k *= 1 - t;
+
+		p += Points[i] * k;
 	}
-	return curPoints[0];
+	return p;
 }
 
-BezierCurve::BezierCurve(std::vector<sf::Vector2f> points) : _points(std::move(points))
+BezierCurve::BezierCurve(std::vector<sf::Vector2f> points) : Points(std::move(points))
 {
 }
 

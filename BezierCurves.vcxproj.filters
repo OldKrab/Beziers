@@ -21,12 +21,6 @@
     <ClCompile Include="src\Bezier\BezierCurve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Bezier\MovingPoint.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sfLine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Bezier\MovingBezierSpline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -38,17 +32,14 @@
     <ClInclude Include="src\Bezier\BezierCurve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Bezier\MovingPoint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sfLine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Bezier\MovingBezierSpline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\HelperFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="C:\WINDOWS\Fonts\ARIAL.TTF" />
   </ItemGroup>
 </Project>

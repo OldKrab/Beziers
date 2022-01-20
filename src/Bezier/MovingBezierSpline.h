@@ -20,6 +20,7 @@ public:
 
 	void SetColor(sf::Color color) { _color = color; }
 
+	void ResetPosition(sf::Vector2f vec);
 protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 

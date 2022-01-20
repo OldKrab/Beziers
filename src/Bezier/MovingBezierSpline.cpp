@@ -14,19 +14,19 @@ void MovingBezierSpline::Update(float dt)
 	if (IsEnded())
 		return;
 
-	_curPosition =  _curCurve->GetValue(_curProgress);
+	_curPosition = _curCurve->GetValue(_curProgress);
 	_drawVertexes.push_back({ _curPosition ,_color });
 
 	int cnt = _drawVertexes.size();
 
 	static float dtSum = 0;
 	dtSum += dt;
-	if (dtSum*_decaySpeed > 1) {
+	if (dtSum * _decaySpeed > 1) {
 		for (int i = 0; i < cnt; i++)
 		{
-			_drawVertexes[i].color.a = std::max(0, _drawVertexes[i].color.a - (sf::Uint8)(dtSum*_decaySpeed));
+			_drawVertexes[i].color.a = std::max(0, _drawVertexes[i].color.a - (sf::Uint8)(dtSum * _decaySpeed));
 		}
-		dtSum =0;
+		dtSum = 0;
 	}
 	_drawVertexes.erase(std::remove_if(_drawVertexes.begin(), _drawVertexes.end(),
 		[](sf::Vertex v) {return v.color.a == 0; }), _drawVertexes.end());
@@ -40,7 +40,7 @@ void MovingBezierSpline::AddBezier(sf::Vector2f point, sf::Vector2f controlPoint
 		_curPosition = point;
 		return;
 	}
-	const auto& prevPoints = _curCurve->GetPoints();
+	const auto& prevPoints = _curCurve->Points;
 	auto prevPoint = prevPoints[prevPoints.size() - 1];
 	auto prevControlPoint = prevPoints[prevPoints.size() - 2];
 	auto firstControlPoint = prevPoint + (prevPoint - prevControlPoint);
@@ -53,10 +53,18 @@ void MovingBezierSpline::AddRandomBezier(sf::IntRect range)
 	AddBezier(_curPosition + HelperFunctions::GetRandomPoint(range), _curPosition + HelperFunctions::GetRandomPoint(range));
 }
 
+void MovingBezierSpline::ResetPosition(sf::Vector2f vec)
+{
+	for (auto&& point : _curCurve->Points)
+		point += vec;
+	for (auto&& vertex : _drawVertexes)
+		vertex.position += vec;
+	_curPosition += vec;
+}
+
 void MovingBezierSpline::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(_drawVertexes.data(), _drawVertexes.size(), sf::LineStrip);
-	const auto& points = _curCurve->GetPoints();
 
 	float r = 0.0009f * target.getView().getSize().x;
 	sf::CircleShape circle(r);
@@ -64,9 +72,10 @@ void MovingBezierSpline::draw(sf::RenderTarget& target, sf::RenderStates states)
 	circle.setOrigin(r, r);
 	circle.setFillColor(_color);
 	target.draw(circle);
-	/*for (auto&& p : points)
+	/*for (auto&& p : _curCurve->Points)
 	{
 		sf::CircleShape circle(2);
+		circle.setFillColor(_color);
 		circle.setPosition(p);
 		target.draw(circle);
 	}*/
