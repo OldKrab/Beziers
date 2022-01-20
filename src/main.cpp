@@ -6,6 +6,8 @@
 #include "HelperFunctions.h"
 #include <format>
 
+#include "InputHandler.h"
+
 sf::RenderWindow window;
 int splinesCount = 100;
 std::vector<MovingBezierSpline> splines;
@@ -13,6 +15,7 @@ bool isMousePressed = false, isFirstGenerate = true;
 float generateTimeDelta = 0.004f, timeSum = 0.f, secondGenerateTime = 1;
 sf::Vector2i mousePos;
 sf::View view;
+
 void Generate()
 {
 	auto&& spline = splines.emplace_back();
@@ -25,9 +28,9 @@ void Generate()
 void ResetToZeroPoint()
 {
 	auto vec = -view.getCenter();
-	for(auto&& spline: splines)
+	for (auto&& spline : splines)
 		spline.ResetPosition(vec);
-	view.setCenter(0,0);
+	view.setCenter(0, 0);
 	window.setView(view);
 }
 
@@ -36,7 +39,7 @@ void DrawText(std::string str)
 	sf::Text text;
 	sf::Font font;
 	font.loadFromFile("ARIAL.TTF");
-	text.setFont(font); 
+	text.setFont(font);
 
 	text.setString(str);
 
@@ -66,6 +69,8 @@ int GetFps(float dt)
 	return fps;
 }
 
+
+
 int main()
 {
 	srand(time(0));
@@ -83,37 +88,30 @@ int main()
 
 	std::ofstream fout("fps");
 
+	InputHandler inputHandler(&window);
+	inputHandler.AddEventHandler(sf::Event::Closed, [](auto) {window.close(); });
+	inputHandler.AddKeyHandler(sf::Keyboard::Escape, [](auto) {window.close(); });
+	inputHandler.AddEventHandler(sf::Event::MouseMoved, [](auto e) {mousePos = { e.mouseMove.x, e.mouseMove.y }; });
+	inputHandler.AddEventHandler(sf::Event::MouseWheelScrolled, [](auto e) {
+		auto scrollDelta = -e.mouseWheelScroll.delta;
+		if (scrollDelta < 0 || view.getSize().x < 30000 && view.getSize().y < 30000)
+			view.setSize(view.getSize() * (1 + scrollDelta * 0.1f));
+		});
+	inputHandler.AddKeyHandler(sf::Keyboard::R, [](auto) {
+		splines.erase(splines.begin() + 1, splines.end());
+		splinesCount = 1;
+		});
+	inputHandler.AddEventHandler(sf::Event::MouseButtonPressed, [](auto) {
+		isMousePressed = true;
+		isFirstGenerate = true;
+		timeSum = 0;
+		Generate();
+		});
+	inputHandler.AddEventHandler(sf::Event::MouseButtonReleased, [](auto) {isMousePressed = false; });
+
 	while (window.isOpen())
 	{
-		sf::Event event{};
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-				window.close();
-			if (event.type == sf::Event::MouseMoved)
-				mousePos = { event.mouseMove.x, event.mouseMove.y };
-			if (event.type == sf::Event::MouseWheelScrolled)
-			{
-				auto scrollDelta = -event.mouseWheelScroll.delta;
-
-				if (scrollDelta < 0 || view.getSize().x < 30000 && view.getSize().y < 30000)
-					view.setSize(view.getSize() * (1 + scrollDelta * 0.1f));
-			}
-			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R)
-			{
-				splines.erase(splines.begin() + 1, splines.end());
-				splinesCount = 1;
-			}
-			if (event.type == sf::Event::MouseButtonPressed)
-			{
-				isMousePressed = true;
-				isFirstGenerate = true;
-				timeSum = 0;
-				Generate();
-			}
-			if (event.type == sf::Event::MouseButtonReleased)
-				isMousePressed = false;
-		}
+		inputHandler.Update();
 
 		if (isMousePressed)
 		{
@@ -137,7 +135,7 @@ int main()
 
 		float dt = clock.getElapsedTime().asSeconds();
 		clock.restart();
-		if (std::abs(view.getCenter().x) > 10 || std::abs(view.getCenter().y) > 10)
+		if (std::abs(view.getCenter().x) > 100000 || std::abs(view.getCenter().y) > 100000)
 			ResetToZeroPoint();
 		timeSum += dt;
 
@@ -168,7 +166,7 @@ int main()
 			sum += splines[i].GetCurrentPosition();
 		}
 
-		
+
 
 		auto prevCenter = view.getCenter();
 		auto curCenter = sum / (float)splines.size();
@@ -182,10 +180,10 @@ int main()
 		window.clear();
 
 
-		auto fps =GetFps(dt);
-		fout << splines.size() << ' ' <<  fps<< std::endl;
+		auto fps = GetFps(dt);
+		fout << splines.size() << ' ' << fps << std::endl;
 
-		DrawText( std::format("FPS: {}\nCount: {}\nCenter: {} {}",fps, splines.size(), view.getCenter().x, view.getCenter().y));
+		DrawText(std::format("FPS: {}\nCount: {}\nCenter: {} {}", fps, splines.size(), view.getCenter().x, view.getCenter().y));
 		for (const auto& spline : splines)
 			window.draw(spline);
 		window.display();

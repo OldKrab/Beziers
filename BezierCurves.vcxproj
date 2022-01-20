@@ -22,12 +22,14 @@
     <ClCompile Include="src\Bezier\BezierCurve.cpp" />
     <ClCompile Include="src\Bezier\MovingBezierSpline.cpp" />
     <ClCompile Include="src\HelperFunctions.cpp" />
+    <ClCompile Include="src\InputHandler.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Bezier\BezierCurve.h" />
     <ClInclude Include="src\Bezier\MovingBezierSpline.h" />
     <ClInclude Include="src\HelperFunctions.h" />
+    <ClInclude Include="src\InputHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="C:\WINDOWS\Fonts\ARIAL.TTF" />
