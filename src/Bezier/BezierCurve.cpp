@@ -5,11 +5,11 @@
 sf::Vector2f BezierCurve::GetValue(float t) const
 {
 	sf::Vector2f p(0, 0);
-	int n =Points.size() - 1;
+	auto n = static_cast<int>(Points.size() - 1);
 	for (int i = 0; i <= n; i++)
 	{
-		float k = (float)HelperFunctions::CalcFactorial(n) /
-			(HelperFunctions::CalcFactorial(i) * HelperFunctions::CalcFactorial(n - i));
+		float k = static_cast<float>(HelperFunctions::CalcFactorial(n)) /
+			 static_cast<float>(HelperFunctions::CalcFactorial(i) * HelperFunctions::CalcFactorial(n - i));
 		for (int _ = 0; _ < i; _++)
 			k *= t;
 		for (int _ = 0; _ < n - i; _++)

@@ -1,7 +1,6 @@
 ﻿#pragma once
-#include <list>
-
 #include "BezierCurve.h"
+#include "HelperFunctions.h"
 
 class MovingBezierSpline :public sf::Drawable
 {
@@ -18,17 +17,19 @@ public:
 
 	void SetSpeed(float speed) { _speedProgress = speed; }
 
-	void SetColor(sf::Color color) { _color = color; }
+	void SetColor(float t) { _color = HelperFunctions::GetGradientRgbColor(t); _colorGradient = t;}
 
-	void ResetPosition(sf::Vector2f vec);
+	void MovePosition(sf::Vector2f vec);
 protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 private:
 	sf::Color _color = sf::Color::White;
-	float _speedProgress = 0.8f, _decaySpeed = 155;
+	float _colorGradient = 0;
+	float _speedProgress = 0.8f, _decaySpeed = 255;
 	sf::Vector2f _curPosition;
 	float _curProgress = 1.f;
+	float _thickness = 5;
 	std::unique_ptr<BezierCurve> _curCurve;
 	std::vector<sf::Vertex> _drawVertexes;
 };

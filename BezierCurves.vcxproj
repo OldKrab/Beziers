@@ -24,12 +24,20 @@
     <ClCompile Include="src\HelperFunctions.cpp" />
     <ClCompile Include="src\InputHandler.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Scene.cpp" />
+    <ClCompile Include="src\SplineGenerator.cpp" />
+    <ClCompile Include="src\ThicknessLine.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Bezier\BezierCurve.h" />
     <ClInclude Include="src\Bezier\MovingBezierSpline.h" />
     <ClInclude Include="src\HelperFunctions.h" />
     <ClInclude Include="src\InputHandler.h" />
+    <ClInclude Include="src\Scene.h" />
+    <ClInclude Include="src\SplineGenerator.h" />
+    <ClInclude Include="src\ThicknessLine.h" />
+    <ClInclude Include="src\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="C:\WINDOWS\Fonts\ARIAL.TTF" />
@@ -58,7 +66,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
