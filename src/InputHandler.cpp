@@ -1,5 +1,6 @@
 ﻿#include "InputHandler.h"
 #include <SFML/Window/Window.hpp>
+#include <map>
 
 void InputHandler::AddKeyPressedHandler(sf::Keyboard::Key key, const std::function<void(sf::Event)>& handler)
 {

@@ -1,4 +1,5 @@
 ﻿#include "HelperFunctions.h"
+#include <cmath>
 
 #include <iostream>
 #include <vector>
@@ -44,9 +45,9 @@ namespace HelperFunctions
 	sf::Color GetGradientRgbColor(float t)
 	{
 		t *= 5;
-		float rt = abs(6 - (t > 3 ? t : 6 + t));
-		float gt = abs(2 - t);
-		float bt = abs(4 - t);
+		float rt = fabsf(6 - (t > 3 ? t : 6 + t));
+		float gt = fabsf(2 - t);
+		float bt = fabsf(4 - t);
 		auto r = static_cast<sf::Uint8>(255 * (rt < 1 ? 1 : std::max(0.f, 2 - rt)));
 		auto g = static_cast<sf::Uint8>(255 * (gt < 1 ? 1 : std::max(0.f, 2 - gt)));
 		auto b = static_cast<sf::Uint8>(255 * (bt < 1 ? 1 : std::max(0.f, 2 - bt)));
@@ -56,7 +57,7 @@ namespace HelperFunctions
 	sf::Color GetGradientColor(float t)
 	{
 		t *= 3;
-		float bt = abs(1 - t);
+		float bt = fabsf(1 - t);
 		auto r = static_cast<sf::Uint8>(255 * std::clamp(t - 1, 0.f, 1.f));
 		auto g = static_cast<sf::Uint8>(255 * std::max(0.f, t - 2));
 		auto b = static_cast<sf::Uint8>(255 * (t < 2 ? std::max(0.f, 1 - bt) : t - 2));

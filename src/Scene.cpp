@@ -1,4 +1,5 @@
-﻿#include "Scene.h"
+﻿#include <execution>
+#include "Scene.h"
 
 #include "HelperFunctions.h"
 
@@ -18,14 +19,13 @@ void Scene::Update(float dt)
 		if (_splineGenerator.IsTimeToGenerate())
 			GenerateSpline();
 	}
-
-	for (auto& spline : _splines)
-	{
+	std::for_each(std::execution::par, _splines.begin(), _splines.end(), [dt, this](auto& spline){
 		spline.Update(dt);
 
 		if (spline.IsEnded())
 			ResetSpline(spline);
-	}
+	});
+	
 	UpdateWindowViewCenter(dt);
 }
 
@@ -74,7 +74,7 @@ void Scene::GenerateSpline()
 	
 	spline.SetColor(static_cast<float>(rand()) / RAND_MAX);
 	//spline.SetColor(sf::Color(rand() % 200 , rand() % 200, rand() % 200));
-	spline.SetSpeed(static_cast<float>(rand() % 300) / 1000 + 0.4f);
+	spline.SetSpeed(static_cast<float>(MAX_SPLINE_SPEED - (float)rand() / (float)RAND_MAX * (MAX_SPLINE_SPEED - MIN_SPLINE_SPEED)));
 }
 
 
@@ -83,19 +83,24 @@ void Scene::ResetSpline(MovingBezierSpline& spline) const
 {
 	sf::Vector2i lt(-20, -20), rb(20, 20);
 	sf::Vector2f worldPos = GetMouseWorldPosition();
+	auto dir = worldPos - spline.GetCurrentPosition();
 	auto delta = static_cast<int>(HelperFunctions::GetLength(worldPos - spline.GetCurrentPosition()));
-	delta = std::max(delta, 50);
-	auto pos = worldPos;
-
-	sf::Vector2f p1 = pos, p2 = pos;
+	delta = std::min(std::max(delta, 50), MAX_DELTA_COEF);
+	auto dest = spline.GetCurrentPosition() + dir * MAX_DIR_COEF;
+	auto middle = spline.GetCurrentPosition() + dir * MAX_DIR_COEF/2.F;
+	if (_isMouseFollowing)
+	{
+		dest = spline.GetCurrentPosition() + dir * MAX_CONTROL_DIR_COEF;
+	}
+	sf::Vector2f p1 = dest, p2 = dest;
 	if (_isMouseFollowing)
 	{
 		p1 += HelperFunctions::GetRandomPoint({ lt, rb - lt });
 		p2 += HelperFunctions::GetRandomPoint({ lt, rb - lt });
 	}
 	else {
-		p1 += HelperFunctions::GetRandomPoint({ {-delta / 2, -delta / 2},{delta,  delta} });
-		p2 += HelperFunctions::GetRandomPoint({ {-delta / 2, -delta / 2},{delta,  delta} });
+		p1 = dest+ HelperFunctions::GetRandomPoint({ {-delta / 2 / 6, -delta / 2 / 6},{delta / 6,  delta / 6} });
+		p2 = middle + HelperFunctions::GetRandomPoint({ {-delta / 2, -delta / 2},{delta,  delta} });
 	}
 	spline.AddBezier(p1, p2);
 }
